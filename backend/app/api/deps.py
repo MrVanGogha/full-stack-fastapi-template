@@ -12,9 +12,10 @@ from app.core import security
 from app.core.config import settings
 from app.core.db import engine
 from app.models import TokenPayload, User
+from app.services.jti import is_jti_revoked
 
 reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/login/access-token"
+    tokenUrl=f"{settings.API_V1_STR}/auth/access-token"
 )
 
 
@@ -27,7 +28,10 @@ SessionDep = Annotated[Session, Depends(get_db)]
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
 
 
-def get_current_user(session: SessionDep, token: TokenDep) -> User:
+async def get_current_user(
+    session: Session = Depends(get_db),
+    token: str = Depends(reusable_oauth2),
+) -> User:
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
@@ -35,14 +39,27 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
         token_data = TokenPayload(**payload)
     except (InvalidTokenError, ValidationError):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=403,
             detail="Could not validate credentials",
         )
+    if not token_data.jti:
+        raise HTTPException(status_code=403, detail="Invalid token id")
+
+    # JTI blacklist check
+    try:
+        if await is_jti_revoked(token_data.jti):
+            raise HTTPException(status_code=401, detail="Token revoked")
+    except Exception:
+        if settings.ENVIRONMENT != "local":
+            raise HTTPException(status_code=503, detail="Auth service temporarily unavailable")
+        # local environment: skip revocation check on Redis errors
+
     user = session.get(User, token_data.sub)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
+
     return user
 
 

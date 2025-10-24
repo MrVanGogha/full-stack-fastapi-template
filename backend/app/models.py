@@ -2,6 +2,7 @@ import uuid
 
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
+from datetime import datetime
 
 
 # Shared properties
@@ -10,6 +11,7 @@ class UserBase(SQLModel):
     is_active: bool = True
     is_superuser: bool = False
     full_name: str | None = Field(default=None, max_length=255)
+    phone_number: str | None = Field(default=None, max_length=32, unique=True, index=True)
 
 
 # Properties to receive via API on creation
@@ -27,11 +29,13 @@ class UserRegister(SQLModel):
 class UserUpdate(UserBase):
     email: EmailStr | None = Field(default=None, max_length=255)  # type: ignore
     password: str | None = Field(default=None, min_length=8, max_length=40)
+    phone_number: str | None = Field(default=None, max_length=32)
 
 
 class UserUpdateMe(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     email: EmailStr | None = Field(default=None, max_length=255)
+    phone_number: str | None = Field(default=None, max_length=32)
 
 
 class UpdatePassword(SQLModel):
@@ -43,6 +47,13 @@ class UpdatePassword(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
+    # 登录审计字段
+    last_login_time: datetime | None = Field(default=None)
+    last_login_ip: str | None = Field(default=None, max_length=64)
+   # WeChat OAuth linkage
+    wechat_openid: str | None = Field(default=None, max_length=64, unique=True, index=True)
+    wechat_nickname: str | None = Field(default=None, max_length=255)
+    wechat_avatar_url: str | None = Field(default=None, max_length=255)
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
 
 
@@ -106,8 +117,18 @@ class Token(SQLModel):
 # Contents of JWT token
 class TokenPayload(SQLModel):
     sub: str | None = None
+    jti: str | None = None
 
 
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
+
+
+class PhoneNumberRequest(SQLModel):
+    phone_number: str = Field(min_length=5, max_length=32)
+
+
+class PhoneLoginRequest(SQLModel):
+    phone_number: str = Field(min_length=5, max_length=32)
+    code: str = Field(min_length=4, max_length=12)

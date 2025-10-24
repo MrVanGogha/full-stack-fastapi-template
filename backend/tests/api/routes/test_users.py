@@ -86,7 +86,7 @@ def test_get_existing_user_current_user(client: TestClient, db: Session) -> None
         "username": username,
         "password": password,
     }
-    r = client.post(f"{settings.API_V1_STR}/login/access-token", data=login_data)
+    r = client.post(f"{settings.API_V1_STR}/auth/access-token", data=login_data)
     tokens = r.json()
     a_token = tokens["access_token"]
     headers = {"Authorization": f"Bearer {a_token}"}
@@ -393,7 +393,7 @@ def test_delete_user_me(client: TestClient, db: Session) -> None:
         "username": username,
         "password": password,
     }
-    r = client.post(f"{settings.API_V1_STR}/login/access-token", data=login_data)
+    r = client.post(f"{settings.API_V1_STR}/auth/access-token", data=login_data)
     tokens = r.json()
     a_token = tokens["access_token"]
     headers = {"Authorization": f"Bearer {a_token}"}

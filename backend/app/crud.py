@@ -37,6 +37,17 @@ def get_user_by_email(*, session: Session, email: str) -> User | None:
     return session_user
 
 
+def get_user_by_phone(*, session: Session, phone_number: str) -> User | None:
+    statement = select(User).where(User.phone_number == phone_number)
+    session_user = session.exec(statement).first()
+    return session_user
+
+def get_user_by_wechat_openid(*, session: Session, openid: str) -> User | None:
+     statement = select(User).where(User.wechat_openid == openid)
+     session_user = session.exec(statement).first()
+     return session_user
+
+
 def authenticate(*, session: Session, email: str, password: str) -> User | None:
     db_user = get_user_by_email(session=session, email=email)
     if not db_user:

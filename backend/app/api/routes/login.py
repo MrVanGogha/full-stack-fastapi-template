@@ -1,7 +1,7 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -18,12 +18,12 @@ from app.utils import (
     verify_password_reset_token,
 )
 
-router = APIRouter(tags=["login"])
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login/access-token")
-def login_access_token(
-    session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+@router.post("/access-token")
+async def login_access_token(
+    session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()], response: Response, request: Request
 ) -> Token:
     """
     OAuth2 compatible token login, get an access token for future requests
@@ -35,15 +35,50 @@ def login_access_token(
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     elif not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
+
+    # 记录最后一次登录时间和 IP
+    try:
+        user.last_login_time = datetime.utcnow()
+        xff = request.headers.get("X-Forwarded-For")
+        if xff:
+            user.last_login_ip = xff.split(",")[0].strip()
+        else:
+            user.last_login_ip = request.client.host if request.client else None
+    except Exception:
+        pass
+
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    return Token(
-        access_token=security.create_access_token(
-            user.id, expires_delta=access_token_expires
-        )
+    refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+
+    access_token = security.create_access_token(
+        user.id, expires_delta=access_token_expires
+    )
+    refresh_token = security.create_refresh_token(
+        user.id, expires_delta=refresh_token_expires
     )
 
+    # 设置 HttpOnly Refresh Token Cookie（前端不读，后端用于刷新）
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=settings.ENVIRONMENT != "local",
+        samesite="lax",
+        max_age=int(refresh_token_expires.total_seconds()),
+        path="/",
+    )
 
-@router.post("/login/test-token", response_model=UserPublic)
+    # 提交登录审计更新
+    try:
+        session.add(user)
+        session.commit()
+    except Exception:
+        session.rollback()
+
+    return Token(access_token=access_token)
+
+
+@router.post("/test-token", response_model=UserPublic)
 def test_token(current_user: CurrentUser) -> Any:
     """
     Test access token

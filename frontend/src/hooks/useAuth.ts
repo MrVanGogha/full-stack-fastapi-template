@@ -11,6 +11,7 @@ import {
   UsersService,
 } from "@/client"
 import { handleError } from "@/utils"
+import { OpenAPI } from "@/client"
 
 const isLoggedIn = () => {
   return localStorage.getItem("access_token") !== null
@@ -58,7 +59,55 @@ const useAuth = () => {
     },
   })
 
-  const logout = () => {
+  // 手机号验证码登录
+  const loginByPhone = async (data: { phone_number: string; code: string }) => {
+    const res = await fetch(`${OpenAPI.BASE}/api/v1/auth/phone/login`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      let message = "Phone login failed"
+      try {
+        const body = await res.json()
+        const detail = (body as any)?.detail
+        if (detail) {
+          message = Array.isArray(detail) && detail.length > 0 ? detail[0].msg : detail
+        }
+      } catch {
+        try {
+          message = await res.text()
+        } catch {}
+      }
+      throw new Error(message)
+    }
+    const token = await res.json()
+    localStorage.setItem("access_token", token.access_token)
+  }
+
+  const loginByPhoneMutation = useMutation({
+    mutationFn: loginByPhone,
+    onSuccess: () => {
+      navigate({ to: "/" })
+    },
+    onError: (err: any) => {
+      handleError(err as any)
+    },
+  })
+
+  const logout = async () => {
+    try {
+      await fetch(`${OpenAPI.BASE}/api/v1/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token") || ""}`,
+        },
+      })
+    } catch (e) {
+      // ignore
+    }
     localStorage.removeItem("access_token")
     navigate({ to: "/login" })
   }
@@ -66,6 +115,7 @@ const useAuth = () => {
   return {
     signUpMutation,
     loginMutation,
+    loginByPhoneMutation,
     logout,
     user,
     error,

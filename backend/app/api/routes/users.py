@@ -1,7 +1,7 @@
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from sqlmodel import col, delete, func, select
 
 from app import crud
@@ -9,9 +9,11 @@ from app.api.deps import (
     CurrentUser,
     SessionDep,
     get_current_active_superuser,
+    TokenDep,
 )
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
+from app.core import security
 from app.models import (
     Item,
     Message,
@@ -25,6 +27,9 @@ from app.models import (
     UserUpdateMe,
 )
 from app.utils import generate_new_account_email, send_email
+from jwt.exceptions import InvalidTokenError
+import jwt
+from app.services.jti import revoke_jti
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -89,6 +94,10 @@ def update_user_me(
             raise HTTPException(
                 status_code=409, detail="User with this email already exists"
             )
+    if getattr(user_in, "phone_number", None):
+        existing_by_phone = crud.get_user_by_phone(session=session, phone_number=user_in.phone_number)  # type: ignore[arg-type]
+        if existing_by_phone and existing_by_phone.id != current_user.id:
+            raise HTTPException(status_code=409, detail="User with this phone number already exists")
     user_data = user_in.model_dump(exclude_unset=True)
     current_user.sqlmodel_update(user_data)
     session.add(current_user)
@@ -98,11 +107,18 @@ def update_user_me(
 
 
 @router.patch("/me/password", response_model=Message)
-def update_password_me(
-    *, session: SessionDep, body: UpdatePassword, current_user: CurrentUser
+async def update_password_me(
+    *,
+    session: SessionDep,
+    body: UpdatePassword,
+    current_user: CurrentUser,
+    token: TokenDep,
+    response: Response,
+    request: Request,
 ) -> Any:
     """
     Update own password.
+    Force re-login by revoking current access & refresh tokens.
     """
     if not verify_password(body.current_password, current_user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect password")
@@ -114,7 +130,33 @@ def update_password_me(
     current_user.hashed_password = hashed_password
     session.add(current_user)
     session.commit()
-    return Message(message="Password updated successfully")
+
+    # Revoke current access token
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
+        jti = payload.get("jti")
+        exp = payload.get("exp")
+        if jti and exp:
+            await revoke_jti(jti, exp_ts=float(exp))
+    except InvalidTokenError:
+        pass
+
+    # Revoke and clear refresh token if present
+    refresh_token = request.cookies.get("refresh_token")
+    if refresh_token:
+        try:
+            rp = jwt.decode(
+                refresh_token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+            )
+            rjti = rp.get("jti")
+            rexp = rp.get("exp")
+            if rjti and rexp:
+                await revoke_jti(rjti, exp_ts=float(rexp))
+        except InvalidTokenError:
+            pass
+        response.delete_cookie("refresh_token")
+
+    return Message(message="Password updated successfully. Please log in again.")
 
 
 @router.get("/me", response_model=UserPublic)
@@ -200,6 +242,10 @@ def update_user(
             raise HTTPException(
                 status_code=409, detail="User with this email already exists"
             )
+    if getattr(user_in, "phone_number", None):
+        existing_by_phone = crud.get_user_by_phone(session=session, phone_number=user_in.phone_number)  # type: ignore[arg-type]
+        if existing_by_phone and existing_by_phone.id != user_id:
+            raise HTTPException(status_code=409, detail="User with this phone number already exists")
 
     db_user = crud.update_user(session=session, db_user=db_user, user_in=user_in)
     return db_user
