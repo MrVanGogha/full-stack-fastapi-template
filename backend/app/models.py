@@ -1,3 +1,4 @@
+from calendar import c
 import uuid
 
 from pydantic import EmailStr
@@ -122,3 +123,14 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+class PhoneNumberRequest(SQLModel):
+    phone_number: str = Field(max_length=32)
+
+
+class PhoneLoginRequest(SQLModel):
+    phone_number: str = Field(max_length=32)
+    code: str = Field(max_length=6)
+
+
+

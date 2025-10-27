@@ -159,7 +159,7 @@ async def logout(token: TokenDep, current_user: CurrentUser, response: Response,
 
 
 @router.post("/phone/send-code", response_model=Message)
-async def send_phone_code(session: SessionDep, body: PhoneNumberRequest) -> Message:
+async def send_phone_code(body: PhoneNumberRequest) -> Message:
     """向手机号发送登录验证码。
     为避免用户枚举，始终返回成功信息。
     本地环境可回显验证码以便开发调试。
