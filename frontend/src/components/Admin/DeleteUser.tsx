@@ -33,7 +33,7 @@ const DeleteUser = ({ id }: { id: string }) => {
   const mutation = useMutation({
     mutationFn: deleteUser,
     onSuccess: () => {
-      showSuccessToast("The user was deleted successfully")
+      showSuccessToast("用户已成功删除")
       setIsOpen(false)
     },
     onError: () => {
@@ -59,19 +59,17 @@ const DeleteUser = ({ id }: { id: string }) => {
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" colorPalette="red">
           <FiTrash2 fontSize="16px" />
-          Delete User
+          删除用户
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Delete User</DialogTitle>
+            <DialogTitle>删除用户</DialogTitle>
           </DialogHeader>
           <DialogBody>
             <Text mb={4}>
-              All items associated with this user will also be{" "}
-              <strong>permanently deleted.</strong> Are you sure? You will not
-              be able to undo this action.
+              与该用户关联的所有项目也将被<strong>永久删除</strong>。确定要继续吗？此操作无法撤销。
             </Text>
           </DialogBody>
 
@@ -82,7 +80,7 @@ const DeleteUser = ({ id }: { id: string }) => {
                 colorPalette="gray"
                 disabled={isSubmitting}
               >
-                Cancel
+                取消
               </Button>
             </DialogActionTrigger>
             <Button
@@ -91,7 +89,7 @@ const DeleteUser = ({ id }: { id: string }) => {
               type="submit"
               loading={isSubmitting}
             >
-              Delete
+              删除
             </Button>
           </DialogFooter>
           <DialogCloseTrigger />

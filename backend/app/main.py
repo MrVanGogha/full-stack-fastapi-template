@@ -8,6 +8,11 @@ import time
 from app.api.main import api_router
 from app.core.config import settings
 from app.core.redis import init_redis, close_redis
+import asyncio
+from datetime import datetime, timedelta
+from sqlmodel import Session, select
+from app.core.db import engine
+from app.models import Item
 # Remove inline JSONResponse/jwt/sqlmodel imports; use external middleware module
 from app.middleware.auth import AuthMiddleware
 
@@ -53,6 +58,41 @@ app.add_middleware(
 app.add_event_handler("startup", init_redis)
 app.add_event_handler("shutdown", close_redis)
 
+# --- Trash purge scheduler ---
+_purge_task: asyncio.Task | None = None
+
+async def _purge_trash_once() -> None:
+    retention_days = getattr(settings, "TRASH_RETENTION_DAYS", 7)
+    cutoff = datetime.utcnow() - timedelta(days=retention_days)
+    with Session(engine) as session:
+        items = session.exec(
+            select(Item).where(Item.deleted_at != None, Item.deleted_at <= cutoff)  # type: ignore
+        ).all()
+        if items:
+            for it in items:
+                session.delete(it)
+            session.commit()
+
+async def _purge_trash_loop() -> None:
+    try:
+        while True:
+            # Run once per day at ~03:00 UTC (simple sleep-based scheduler)
+            now = datetime.utcnow()
+            target = datetime(now.year, now.month, now.day, 3, 0, 0)
+            if now >= target:
+                target += timedelta(days=1)
+            sleep_seconds = (target - now).total_seconds()
+            await asyncio.sleep(sleep_seconds)
+            await _purge_trash_once()
+    except asyncio.CancelledError:
+        return
+
+def _start_purge_scheduler() -> None:
+    global _purge_task
+    if _purge_task is None:
+        _purge_task = asyncio.create_task(_purge_trash_loop())
+
+app.add_event_handler("startup", _start_purge_scheduler)
 
 class ProcessTimeMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):

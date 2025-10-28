@@ -300,7 +300,9 @@ async def wechat_callback(request: Request, response: Response, session: Session
     refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     access_token = security.create_access_token(user.id, expires_delta=access_token_expires)
     refresh_token = security.create_refresh_token(user.id, expires_delta=refresh_token_expires)
-    response.set_cookie(
+    frontend_url = f"{settings.FRONTEND_HOST}/login-success?access_token={access_token}"
+    redirect_response = RedirectResponse(frontend_url)
+    redirect_response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
@@ -309,5 +311,4 @@ async def wechat_callback(request: Request, response: Response, session: Session
         max_age=int(refresh_token_expires.total_seconds()),
         path="/",
     )
-    frontend_url = f"{settings.FRONTEND_HOST}/login-success?access_token={access_token}"
-    return RedirectResponse(frontend_url)
+    return redirect_response

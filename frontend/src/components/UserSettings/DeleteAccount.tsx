@@ -6,11 +6,10 @@ const DeleteAccount = () => {
   return (
     <Container maxW="full">
       <Heading size="sm" py={4}>
-        Delete Account
+        删除账户
       </Heading>
       <Text>
-        Permanently delete your data and everything associated with your
-        account.
+        将永久删除您的数据及与账户相关的所有信息。
       </Text>
       <DeleteConfirmation />
     </Container>

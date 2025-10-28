@@ -6,9 +6,9 @@ const PendingItems = () => (
     <Table.Header>
       <Table.Row>
         <Table.ColumnHeader w="sm">ID</Table.ColumnHeader>
-        <Table.ColumnHeader w="sm">Title</Table.ColumnHeader>
-        <Table.ColumnHeader w="sm">Description</Table.ColumnHeader>
-        <Table.ColumnHeader w="sm">Actions</Table.ColumnHeader>
+        <Table.ColumnHeader w="sm">标题</Table.ColumnHeader>
+        <Table.ColumnHeader w="sm">描述</Table.ColumnHeader>
+        <Table.ColumnHeader w="sm">操作</Table.ColumnHeader>
       </Table.Row>
     </Table.Header>
     <Table.Body>

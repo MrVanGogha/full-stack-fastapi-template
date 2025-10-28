@@ -74,28 +74,28 @@ const AddItem = () => {
       <DialogTrigger asChild>
         <Button value="add-item" my={4}>
           <FaPlus fontSize="16px" />
-          Add Item
+          新增项目
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Add Item</DialogTitle>
+            <DialogTitle>新增项目</DialogTitle>
           </DialogHeader>
           <DialogBody>
-            <Text mb={4}>Fill in the details to add a new item.</Text>
+            <Text mb={4}>填写项目的标题与描述。</Text>
             <VStack gap={4}>
               <Field
                 required
                 invalid={!!errors.title}
                 errorText={errors.title?.message}
-                label="Title"
+                label="标题"
               >
                 <Input
                   {...register("title", {
-                    required: "Title is required.",
+                    required: "标题为必填项。",
                   })}
-                  placeholder="Title"
+                  placeholder="标题"
                   type="text"
                 />
               </Field>
@@ -103,11 +103,11 @@ const AddItem = () => {
               <Field
                 invalid={!!errors.description}
                 errorText={errors.description?.message}
-                label="Description"
+                label="描述"
               >
                 <Input
                   {...register("description")}
-                  placeholder="Description"
+                  placeholder="描述"
                   type="text"
                 />
               </Field>
@@ -121,7 +121,7 @@ const AddItem = () => {
                 colorPalette="gray"
                 disabled={isSubmitting}
               >
-                Cancel
+                取消
               </Button>
             </DialogActionTrigger>
             <Button
@@ -130,7 +130,7 @@ const AddItem = () => {
               disabled={!isValid}
               loading={isSubmitting}
             >
-              Save
+              保存
             </Button>
           </DialogFooter>
         </form>

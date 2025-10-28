@@ -3,7 +3,7 @@ import useCustomToast from "./hooks/useCustomToast"
 
 export const emailPattern = {
   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-  message: "Invalid email address",
+  message: "邮箱地址格式不正确",
 }
 
 export const namePattern = {
@@ -15,12 +15,12 @@ export const passwordRules = (isRequired = true) => {
   const rules: any = {
     minLength: {
       value: 8,
-      message: "Password must be at least 8 characters",
+      message: "密码长度至少为 8 个字符",
     },
   }
 
   if (isRequired) {
-    rules.required = "Password is required"
+    rules.required = "密码为必填项"
   }
 
   return rules
@@ -33,12 +33,12 @@ export const confirmPasswordRules = (
   const rules: any = {
     validate: (value: string) => {
       const password = getValues().password || getValues().new_password
-      return value === password ? true : "The passwords do not match"
+      return value === password ? true : "两次输入的密码不一致"
     },
   }
 
   if (isRequired) {
-    rules.required = "Password confirmation is required"
+    rules.required = "确认密码为必填项"
   }
 
   return rules

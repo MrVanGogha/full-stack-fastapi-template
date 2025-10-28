@@ -21,7 +21,7 @@ const UserMenu = () => {
           <MenuTrigger asChild p={2}>
             <Button data-testid="user-menu" variant="solid" maxW="sm" truncate>
               <FaUserAstronaut fontSize="18" />
-              <Text>{user?.full_name || "User"}</Text>
+              <Text>{user?.full_name || "用户"}</Text>
             </Button>
           </MenuTrigger>
 
@@ -35,7 +35,7 @@ const UserMenu = () => {
                 style={{ cursor: "pointer" }}
               >
                 <FiUser fontSize="18px" />
-                <Box flex="1">My Profile</Box>
+                <Box flex="1">我的资料</Box>
               </MenuItem>
             </Link>
 
@@ -47,7 +47,7 @@ const UserMenu = () => {
               style={{ cursor: "pointer" }}
             >
               <FiLogOut />
-              Log Out
+              退出登录
             </MenuItem>
           </MenuContent>
         </MenuRoot>

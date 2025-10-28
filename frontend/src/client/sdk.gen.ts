@@ -3,12 +3,308 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { AuthLoginAccessTokenData, AuthLoginAccessTokenResponse, AuthTestTokenResponse, AuthRecoverPasswordData, AuthRecoverPasswordResponse, AuthResetPasswordData, AuthResetPasswordResponse, AuthRecoverPasswordHtmlContentData, AuthRecoverPasswordHtmlContentResponse, AuthRevokeCurrentTokenResponse, AuthRevokeByJtiData, AuthRevokeByJtiResponse, AuthJtiStatusMeResponse, AuthJtiStatusData, AuthJtiStatusResponse, AuthRefreshTokenResponse, AuthLogoutResponse, AuthSendPhoneCodeData, AuthSendPhoneCodeResponse, AuthPhoneLoginData, AuthPhoneLoginResponse, AuthWechatAuthorizeResponse, AuthWechatCallbackData, AuthWechatCallbackResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsReadTrashItemsData, ItemsReadTrashItemsResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsRestoreItemData, ItemsRestoreItemResponse, ItemsPurgeItemData, ItemsPurgeItemResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+
+export class AuthService {
+    /**
+     * Login Access Token
+     * OAuth2 compatible token login, get an access token for future requests
+     * @param data The data for the request.
+     * @param data.formData
+     * @returns Token Successful Response
+     * @throws ApiError
+     */
+    public static loginAccessToken(data: AuthLoginAccessTokenData): CancelablePromise<AuthLoginAccessTokenResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/auth/access-token',
+            formData: data.formData,
+            mediaType: 'application/x-www-form-urlencoded',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Test Token
+     * Test access token
+     * @returns UserPublic Successful Response
+     * @throws ApiError
+     */
+    public static testToken(): CancelablePromise<AuthTestTokenResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/auth/test-token'
+        });
+    }
+    
+    /**
+     * Recover Password
+     * Password Recovery
+     * @param data The data for the request.
+     * @param data.email
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static recoverPassword(data: AuthRecoverPasswordData): CancelablePromise<AuthRecoverPasswordResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/auth/password-recovery/{email}',
+            path: {
+                email: data.email
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Reset Password
+     * Reset password
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static resetPassword(data: AuthResetPasswordData): CancelablePromise<AuthResetPasswordResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/auth/reset-password/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Recover Password Html Content
+     * HTML Content for Password Recovery
+     * @param data The data for the request.
+     * @param data.email
+     * @returns string Successful Response
+     * @throws ApiError
+     */
+    public static recoverPasswordHtmlContent(data: AuthRecoverPasswordHtmlContentData): CancelablePromise<AuthRecoverPasswordHtmlContentResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/auth/password-recovery-html-content/{email}',
+            path: {
+                email: data.email
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Revoke Current Token
+     * Revoke the caller's current access token until it expires.
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static revokeCurrentToken(): CancelablePromise<AuthRevokeCurrentTokenResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/auth/revoke/me'
+        });
+    }
+    
+    /**
+     * Revoke By Jti
+     * Revoke a token by its JTI. Superuser only.
+     *
+     * Optionally provide ttl_seconds to auto-expire the revocation entry.
+     * @param data The data for the request.
+     * @param data.jti
+     * @param data.ttlSeconds
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static revokeByJti(data: AuthRevokeByJtiData): CancelablePromise<AuthRevokeByJtiResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/auth/revoke/{jti}',
+            path: {
+                jti: data.jti
+            },
+            query: {
+                ttl_seconds: data.ttlSeconds
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Jti Status Me
+     * Check revocation status of the caller's current token.
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static jtiStatusMe(): CancelablePromise<AuthJtiStatusMeResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/auth/status/me'
+        });
+    }
+    
+    /**
+     * Jti Status
+     * Check revocation status of a JTI. Superuser only.
+     * @param data The data for the request.
+     * @param data.jti
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static jtiStatus(data: AuthJtiStatusData): CancelablePromise<AuthJtiStatusResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/auth/status/{jti}',
+            path: {
+                jti: data.jti
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Refresh Token
+     * 使用刷新令牌获取新的访问令牌，并旋转刷新令牌。
+     * @returns Token Successful Response
+     * @throws ApiError
+     */
+    public static refreshToken(): CancelablePromise<AuthRefreshTokenResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/auth/refresh'
+        });
+    }
+    
+    /**
+     * Logout
+     * Logout current user: revoke current access token and clear cookies.
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static logout(): CancelablePromise<AuthLogoutResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/auth/logout'
+        });
+    }
+    
+    /**
+     * Send Phone Code
+     * 向手机号发送登录验证码。
+     * 为避免用户枚举，始终返回成功信息。
+     * 本地环境可回显验证码以便开发调试。
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static sendPhoneCode(data: AuthSendPhoneCodeData): CancelablePromise<AuthSendPhoneCodeResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/auth/phone/send-code',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Phone Login
+     * 使用手机号+验证码登录，签发访问令牌并设置刷新 Cookie。
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns Token Successful Response
+     * @throws ApiError
+     */
+    public static phoneLogin(data: AuthPhoneLoginData): CancelablePromise<AuthPhoneLoginResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/auth/phone/login',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Wechat Authorize
+     * Generate state, construct WeChat QR connect URL, and redirect the browser.
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static wechatAuthorize(): CancelablePromise<AuthWechatAuthorizeResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/auth/wechat/authorize'
+        });
+    }
+    
+    /**
+     * Wechat Callback
+     * Handle WeChat callback: validate state, exchange code for openid, login or create user, set refresh cookie, and redirect frontend.
+     * @param data The data for the request.
+     * @param data.code
+     * @param data.state
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static wechatCallback(data: AuthWechatCallbackData): CancelablePromise<AuthWechatCallbackResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/auth/wechat/login',
+            query: {
+                code: data.code,
+                state: data.state
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
 
 export class ItemsService {
     /**
+     * Create Item
+     * 创建一个新的物品，关联当前用户作为所有者。
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns ItemPublic Successful Response
+     * @throws ApiError
+     */
+    public static createItem(data: ItemsCreateItemData): CancelablePromise<ItemsCreateItemResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/items/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
      * Read Items
-     * Retrieve items.
+     * 检索所有物品（排除已软删除的物品）。
+     * Retrieve items (exclude soft-deleted).
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
@@ -30,19 +326,24 @@ export class ItemsService {
     }
     
     /**
-     * Create Item
-     * Create new item.
+     * Read Trash Items
+     * 检索当前用户的所有已软删除物品（管理员可以查看所有用户的物品）。
+     * List items in trash for current user (admin sees all).
+     * Returns raw dict with deleted_at and expires_at.
      * @param data The data for the request.
-     * @param data.requestBody
-     * @returns ItemPublic Successful Response
+     * @param data.skip
+     * @param data.limit
+     * @returns ItemsTrashPublic Successful Response
      * @throws ApiError
      */
-    public static createItem(data: ItemsCreateItemData): CancelablePromise<ItemsCreateItemResponse> {
+    public static readTrashItems(data: ItemsReadTrashItemsData = {}): CancelablePromise<ItemsReadTrashItemsResponse> {
         return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/v1/items/',
-            body: data.requestBody,
-            mediaType: 'application/json',
+            method: 'GET',
+            url: '/api/v1/items/trash',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
             errors: {
                 422: 'Validation Error'
             }
@@ -51,7 +352,7 @@ export class ItemsService {
     
     /**
      * Read Item
-     * Get item by ID.
+     * Get item by ID (404 if soft-deleted).
      * @param data The data for the request.
      * @param data.id
      * @returns ItemPublic Successful Response
@@ -71,32 +372,8 @@ export class ItemsService {
     }
     
     /**
-     * Update Item
-     * Update an item.
-     * @param data The data for the request.
-     * @param data.id
-     * @param data.requestBody
-     * @returns ItemPublic Successful Response
-     * @throws ApiError
-     */
-    public static updateItem(data: ItemsUpdateItemData): CancelablePromise<ItemsUpdateItemResponse> {
-        return __request(OpenAPI, {
-            method: 'PUT',
-            url: '/api/v1/items/{id}',
-            path: {
-                id: data.id
-            },
-            body: data.requestBody,
-            mediaType: 'application/json',
-            errors: {
-                422: 'Validation Error'
-            }
-        });
-    }
-    
-    /**
      * Delete Item
-     * Delete an item.
+     * Soft delete an item (move to trash).
      * @param data The data for the request.
      * @param data.id
      * @returns Message Successful Response
@@ -114,75 +391,23 @@ export class ItemsService {
             }
         });
     }
-}
-
-export class LoginService {
-    /**
-     * Login Access Token
-     * OAuth2 compatible token login, get an access token for future requests
-     * @param data The data for the request.
-     * @param data.formData
-     * @returns Token Successful Response
-     * @throws ApiError
-     */
-    public static loginAccessToken(data: LoginLoginAccessTokenData): CancelablePromise<LoginLoginAccessTokenResponse> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/v1/auth/access-token',
-            formData: data.formData,
-            mediaType: 'application/x-www-form-urlencoded',
-            errors: {
-                422: 'Validation Error'
-            }
-        });
-    }
     
     /**
-     * Test Token
-     * Test access token
-     * @returns UserPublic Successful Response
-     * @throws ApiError
-     */
-    public static testToken(): CancelablePromise<LoginTestTokenResponse> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/v1/auth/test-token'
-        });
-    }
-    
-    /**
-     * Recover Password
-     * Password Recovery
+     * Update Item
+     * Update an item by ID.
      * @param data The data for the request.
-     * @param data.email
-     * @returns Message Successful Response
-     * @throws ApiError
-     */
-    public static recoverPassword(data: LoginRecoverPasswordData): CancelablePromise<LoginRecoverPasswordResponse> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/v1/auth/password-recovery/{email}',
-            path: {
-                email: data.email
-            },
-            errors: {
-                422: 'Validation Error'
-            }
-        });
-    }
-    
-    /**
-     * Reset Password
-     * Reset password
-     * @param data The data for the request.
+     * @param data.id
      * @param data.requestBody
-     * @returns Message Successful Response
+     * @returns ItemPublic Successful Response
      * @throws ApiError
      */
-    public static resetPassword(data: LoginResetPasswordData): CancelablePromise<LoginResetPasswordResponse> {
+    public static updateItem(data: ItemsUpdateItemData): CancelablePromise<ItemsUpdateItemResponse> {
         return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/v1/auth/reset-password/',
+            method: 'PATCH',
+            url: '/api/v1/items/{id}',
+            path: {
+                id: data.id
+            },
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -192,19 +417,40 @@ export class LoginService {
     }
     
     /**
-     * Recover Password Html Content
-     * HTML Content for Password Recovery
+     * Restore Item
+     * Restore a soft-deleted item.
      * @param data The data for the request.
-     * @param data.email
-     * @returns string Successful Response
+     * @param data.id
+     * @returns ItemPublic Successful Response
      * @throws ApiError
      */
-    public static recoverPasswordHtmlContent(data: LoginRecoverPasswordHtmlContentData): CancelablePromise<LoginRecoverPasswordHtmlContentResponse> {
+    public static restoreItem(data: ItemsRestoreItemData): CancelablePromise<ItemsRestoreItemResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/auth/password-recovery-html-content/{email}',
+            url: '/api/v1/items/{id}/restore',
             path: {
-                email: data.email
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Purge Item
+     * Permanently delete an item.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static purgeItem(data: ItemsPurgeItemData): CancelablePromise<ItemsPurgeItemResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/items/{id}/purge',
+            path: {
+                id: data.id
             },
             errors: {
                 422: 'Validation Error'
@@ -328,6 +574,7 @@ export class UsersService {
     /**
      * Update Password Me
      * Update own password.
+     * Force re-login by revoking current access & refresh tokens.
      * @param data The data for the request.
      * @param data.requestBody
      * @returns Message Successful Response

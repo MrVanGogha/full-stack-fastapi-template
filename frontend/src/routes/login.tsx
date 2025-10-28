@@ -8,7 +8,7 @@ import { type SubmitHandler, useForm } from "react-hook-form"
 import { FiLock, FiMail, FiPhone, FiHash } from "react-icons/fi"
 import { useState } from "react"
 
-import type { Body_login_login_access_token as AccessToken } from "@/client"
+import type { Body_auth_login_access_token as AccessToken } from "@/client"
 import { Button } from "@/components/ui/button"
 import { Field } from "@/components/ui/field"
 import { InputGroup } from "@/components/ui/input-group"
@@ -174,10 +174,10 @@ function Login() {
             <InputGroup w="100%" startElement={<FiMail />}>
               <Input
                 {...register("username", {
-                  required: "Username is required",
+                  required: "用户名为必填项",
                   pattern: emailPattern,
                 })}
-                placeholder="Email"
+                placeholder="邮箱"
                 type="email"
               />
             </InputGroup>
@@ -186,15 +186,11 @@ function Login() {
             type="password"
             startElement={<FiLock />}
             {...register("password", passwordRules())}
-            placeholder="Password"
+            placeholder="密码"
             errors={errors}
           />
-          <RouterLink to="/recover-password" className="main-link">
-            Forgot Password?
-          </RouterLink>
-          <Button variant="solid" type="submit" loading={isSubmitting} size="md">
-            Log In
-          </Button>
+          <RouterLink to="/recover-password" className="main-link">忘记密码？</RouterLink>
+          <Button variant="solid" type="submit" loading={isSubmitting} size="md">登录</Button>
           <Button
             variant="outline"
             type="button"
@@ -205,9 +201,9 @@ function Login() {
             微信扫码登录
           </Button>
           <Text>
-            Don't have an account?{" "}
+            还没有账号？{" "}
             <RouterLink to="/signup" className="main-link">
-              Sign Up
+              注册
             </RouterLink>
           </Text>
         </>

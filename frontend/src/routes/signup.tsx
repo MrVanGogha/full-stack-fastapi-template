@@ -81,9 +81,9 @@ function SignUp() {
             <Input
               minLength={3}
               {...register("full_name", {
-                required: "Full Name is required",
+                required: "姓名为必填项",
               })}
-              placeholder="Full Name"
+              placeholder="姓名"
               type="text"
             />
           </InputGroup>
@@ -93,10 +93,10 @@ function SignUp() {
           <InputGroup w="100%" startElement={<FiUser />}>
             <Input
               {...register("email", {
-                required: "Email is required",
+                required: "邮箱为必填项",
                 pattern: emailPattern,
               })}
-              placeholder="Email"
+              placeholder="邮箱"
               type="email"
             />
           </InputGroup>
@@ -105,23 +105,21 @@ function SignUp() {
           type="password"
           startElement={<FiLock />}
           {...register("password", passwordRules())}
-          placeholder="Password"
+          placeholder="密码"
           errors={errors}
         />
         <PasswordInput
           type="confirm_password"
           startElement={<FiLock />}
           {...register("confirm_password", confirmPasswordRules(getValues))}
-          placeholder="Confirm Password"
+          placeholder="确认密码"
           errors={errors}
         />
-        <Button variant="solid" type="submit" loading={isSubmitting}>
-          Sign Up
-        </Button>
+        <Button variant="solid" type="submit" loading={isSubmitting}>注册</Button>
         <Text>
-          Already have an account?{" "}
+          已经有账号？{" "}
           <RouterLink to="/login" className="main-link">
-            Log In
+            登录
           </RouterLink>
         </Text>
       </Container>

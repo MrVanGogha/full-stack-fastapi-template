@@ -50,7 +50,7 @@ const UserInformation = () => {
     mutationFn: (data: UserUpdateMe) =>
       UsersService.updateUserMe({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("User updated successfully.")
+      showSuccessToast("用户信息更新成功")
     },
     onError: (err: ApiError) => {
       handleError(err)
@@ -72,14 +72,14 @@ const UserInformation = () => {
   return (
     <Container maxW="full">
       <Heading size="sm" py={4}>
-        User Information
+        用户信息
       </Heading>
       <Box
         w={{ sm: "full", md: "sm" }}
         as="form"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <Field label="Full name">
+        <Field label="姓名">
           {editMode ? (
             <Input
               {...register("full_name", { maxLength: 30 })}
@@ -94,20 +94,20 @@ const UserInformation = () => {
               truncate
               maxW="sm"
             >
-              {currentUser?.full_name || "N/A"}
+              {currentUser?.full_name || "暂无"}
             </Text>
           )}
         </Field>
         <Field
           mt={4}
-          label="Email"
+          label="邮箱"
           invalid={!!errors.email}
           errorText={errors.email?.message}
         >
           {editMode ? (
             <Input
               {...register("email", {
-                required: "Email is required",
+                required: "邮箱为必填项",
                 pattern: emailPattern,
               })}
               type="email"
@@ -127,7 +127,7 @@ const UserInformation = () => {
             loading={editMode ? isSubmitting : false}
             disabled={editMode ? !isDirty || !getValues("email") : false}
           >
-            {editMode ? "Save" : "Edit"}
+            {editMode ? "保存" : "编辑"}
           </Button>
           {editMode && (
             <Button
@@ -136,7 +136,7 @@ const UserInformation = () => {
               onClick={onCancel}
               disabled={isSubmitting}
             >
-              Cancel
+              取消
             </Button>
           )}
         </Flex>

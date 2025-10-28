@@ -33,11 +33,11 @@ const DeleteItem = ({ id }: { id: string }) => {
   const mutation = useMutation({
     mutationFn: deleteItem,
     onSuccess: () => {
-      showSuccessToast("The item was deleted successfully")
+      showSuccessToast("项目已成功移至回收站")
       setIsOpen(false)
     },
     onError: () => {
-      showErrorToast("An error occurred while deleting the item")
+      showErrorToast("移动项目到回收站时发生错误")
     },
     onSettled: () => {
       queryClient.invalidateQueries()
@@ -59,7 +59,7 @@ const DeleteItem = ({ id }: { id: string }) => {
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" colorPalette="red">
           <FiTrash2 fontSize="16px" />
-          Delete Item
+          移至回收站
         </Button>
       </DialogTrigger>
 
@@ -67,12 +67,11 @@ const DeleteItem = ({ id }: { id: string }) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogCloseTrigger />
           <DialogHeader>
-            <DialogTitle>Delete Item</DialogTitle>
+            <DialogTitle>移动项目到回收站</DialogTitle>
           </DialogHeader>
           <DialogBody>
             <Text mb={4}>
-              This item will be permanently deleted. Are you sure? You will not
-              be able to undo this action.
+              该项目将被移至回收站。回收站中的项目在过期之前可以恢复。是否继续？
             </Text>
           </DialogBody>
 
@@ -83,7 +82,7 @@ const DeleteItem = ({ id }: { id: string }) => {
                 colorPalette="gray"
                 disabled={isSubmitting}
               >
-                Cancel
+                取消
               </Button>
             </DialogActionTrigger>
             <Button
@@ -92,7 +91,7 @@ const DeleteItem = ({ id }: { id: string }) => {
               type="submit"
               loading={isSubmitting}
             >
-              Delete
+              移至回收站
             </Button>
           </DialogFooter>
         </form>
