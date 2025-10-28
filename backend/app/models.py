@@ -54,7 +54,13 @@ class User(UserBase, table=True):
     wechat_openid: str | None = Field(default=None, max_length=64, unique=True, index=True)
     wechat_nickname: str | None = Field(default=None, max_length=255)
     wechat_avatar_url: str | None = Field(default=None, max_length=255)
-    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+    items: list["Item"] = Relationship(
+        back_populates="owner",
+        cascade_delete=True,
+        sa_relationship_kwargs={
+            "primaryjoin": "User.id == Item.owner_id",
+        },
+    )
 
 
 # Properties to return via API, id is always required
@@ -89,7 +95,16 @@ class Item(ItemBase, table=True):
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
-    owner: User | None = Relationship(back_populates="items")
+    owner: User | None = Relationship(
+        back_populates="items",
+        sa_relationship_kwargs={
+            "primaryjoin": "Item.owner_id == User.id",
+        },
+    )
+    # Soft delete fields
+    deleted_at: datetime | None = Field(default=None, index=True)
+    deleted_by: uuid.UUID | None = Field(default=None, foreign_key="user.id", ondelete="SET NULL")
+    delete_reason: str | None = Field(default=None, max_length=255)
 
 
 # Properties to return via API, id is always required
@@ -100,6 +115,17 @@ class ItemPublic(ItemBase):
 
 class ItemsPublic(SQLModel):
     data: list[ItemPublic]
+    count: int
+
+# Trash response models
+class ItemTrashPublic(ItemPublic):
+    deleted_at: datetime
+    deleted_by: uuid.UUID | None = None
+    delete_reason: str | None = None
+    expires_at: datetime | None = None
+
+class ItemsTrashPublic(SQLModel):
+    data: list[ItemTrashPublic]
     count: int
 
 
